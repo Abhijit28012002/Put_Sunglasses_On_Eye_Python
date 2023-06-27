@@ -5,12 +5,9 @@ import keyboard
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils
 
-#IMAGE_FILES = ['EM.jpg']
+
 cap = cv2.VideoCapture(0)
 
-#result = cv2.VideoWriter('filename.avi', 
-#                         cv2.VideoWriter_fourcc(*'MJPG'),
-#                         10, (3840,2160))
 
 with mp_face_detection.FaceDetection(
     min_detection_confidence=0.5) as face_detection:
@@ -18,16 +15,16 @@ with mp_face_detection.FaceDetection(
   while cap.isOpened() :
 
     success,image = cap.read()
-    #image = cv2.imread("JB.jpg")
-    imgFront = cv2.imread("blackglasses.png", cv2.IMREAD_UNCHANGED)
+
+    imgFront = cv2.imread("sunglasses.png", cv2.IMREAD_UNCHANGED)
     s_h,s_w,_ = imgFront.shape
 
 
     imageHeight,imageWidth,_ = image.shape
-    # Convert the BGR image to RGB and process it with MediaPipe Face Detection.
+    
     results = face_detection.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 
-    # Draw face detections of each face.
+    
     if results.detections:
       for detection in results.detections:
         
@@ -54,33 +51,22 @@ with mp_face_detection.FaceDetection(
         Right_EYE_x = pixelCoordinatesLandmark[0]    # RIGHT EYE    
         Right_EYE_y = pixelCoordinatesLandmark[1]
 
-        #mp_drawing.draw_detection(image, detection) # Drawing face landmarks
         
-
-        #print('Left Ear : ',Left_Ear_x,Left_Ear_y)
-        #print('Right Ear : ',Right_Ear_x,Right_Ear_y)
-        #print('Left EYE : ',Left_EYE_x,Left_EYE_y)
-        #print('Right EYE : ',Right_EYE_x,Right_EYE_y)
-        #cv2.circle(image,(Right_EYE_x,Right_EYE_y),10,(0,0,255),1)
-
         sunglass_width = Left_Ear_x-Right_Ear_x+60
         sunglass_height = int((s_h/s_w)*sunglass_width)
-        #print('size : ',sunglass_width,sunglass_height)
+        
         
         imgFront = cv2.resize(imgFront, (sunglass_width, sunglass_height), None, 0.3, 0.3)
 
         hf, wf, cf = imgFront.shape
         hb, wb, cb = image.shape
 
-        #194 > 100   
-        #80 > 60    160/80 * 60
+        
         y_adjust = int((sunglass_height/80)*80) #adjust value to fine tune
         x_adjust = int((sunglass_width/194)*100)
 
         pos = [Nose_tip_x-x_adjust,Nose_tip_y-y_adjust]
-        #print(hb-hf)
-        #imgResult = cvzone.overlayPNG(imgBack, imgFront, [0, hb-hf])
-
+        
         hf, wf, cf = imgFront.shape
         hb, wb, cb = image.shape
         *_, mask = cv2.split(imgFront)
@@ -97,16 +83,10 @@ with mp_face_detection.FaceDetection(
 
         image = cv2.bitwise_and(image, imgMaskFull2)
         image = cv2.bitwise_or(image, imgMaskFull)
-        #cv2.namedWindow("Sunglass Effect",cv2.WINDOW_NORMAL)
-        #image = cv2.resize(image,(540,960))  
+        
     cv2.imshow('Sunglass Effect',image)
-    #result.write(image)  Write to a file
-        
-        
-    if keyboard.is_pressed('q') :
+    if cv2.waitKey(10)==13:
         break
-
-    cv2.waitKey(5) 
 
 cap.release()
 cv2.destroyAllWindows()
